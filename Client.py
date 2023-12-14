@@ -495,3 +495,76 @@ class UpdateMaintanance(Frame):
 
     def buttonPressedClose(self):
         self.master.destroy()
+
+class SystemAdmin(Frame):
+
+    def __init__(self):
+        Frame.__init__(self)
+        self.pack()
+        self.master.title("System Admin Menu")
+
+        self.frame1 = Frame(self)
+        self.frame1.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.showRepairshopDataLbl = Label(self.frame1, text="Show Repairshop Analytics", anchor="w")
+        self.showRepairshopDataLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.showRepairshopDataBtn = Button(self.frame1, text="Show", command=self.buttonPressedShowAnalytics)
+        self.showRepairshopDataBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.frame2 = Frame(self)
+        self.frame2.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.addRepairshopLbl = Label(self.frame2, text="Add New Repairshop", anchor="w")
+        self.addRepairshopLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.addRepairshopBtn = Button(self.frame2, text="Add", command=self.buttonPressedAddRepairshop)
+        self.addRepairshopBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.frame3 = Frame(self)
+        self.frame3.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.closeBtn = Button(self.frame3, text="Close", command=self.buttonPressedClose)
+        self.closeBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+    def buttonPressedShowAnalytics(self):
+        clientMsg = "showRepairshopAnalytics"
+        msg = ("CLIENT>>> " + clientMsg).encode()
+        clientSocket.send(msg)
+
+        serverMsg = clientSocket.recv(1024).decode()
+        print(serverMsg)
+        serverMsg = serverMsg.split(";")  # after getting server message, I splitted it
+        serverMsgLength = len(serverMsg)
+        repairShopData = serverMsg[1:serverMsgLength-1]
+
+        repairShopIDs = []
+        repairShopIncome = []
+
+
+        for data in repairShopData:
+            data = data.split(",")
+            repairShopIDs.append("RepairShop" + (data[0]))
+            repairShopIncome.append(int(data[1]))
+
+
+        # bar chart visualisation
+        plt.bar(repairShopIDs, repairShopIncome)
+        plt.xlabel('Repair Shop IDS')
+        plt.ylabel('Repair Shop Income')
+        plt.title("Total Income of each RepairShop")
+        plt.show()
+
+
+
+
+
+    def buttonPressedAddRepairshop(self):
+        self.master.destroy()
+        addRepairshopWindow = AddRepairshop()
+        addRepairshopWindow.mainloop()
+
+
+
+    def buttonPressedClose(self):
+        self.master.destroy()
