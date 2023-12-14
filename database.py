@@ -168,3 +168,85 @@ def insertRecords(dbname):
 
     conn.commit()
     conn.close()
+
+def userMenu(conn, user_id):
+    # User menu function
+    c = conn.cursor()
+    while True:
+        print("\nMenu:")
+        print("1. Show Past Maintenance Records")
+        print("2. Add New Vehicle")
+        print("3. Add New Appointment")
+        print("4. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            # Show Past Maintenance Records
+            c.execute("""
+                SELECT M.maintenanceId, M.name, M.date, M.description, V.model
+                FROM MAINTENANCE M
+                JOIN VEHICLE_MAINTENANCE VM ON M.maintenanceId = VM.maintenanceId
+                JOIN USER_VEHICLE UV ON VM.vehicleId = UV.vehicleId
+                JOIN VEHICLE V ON UV.vehicleId = V.vehicleId
+                WHERE UV.userId = ?
+            """, (user_id,))
+            maintenance_records = c.fetchall()
+            if maintenance_records:
+                for record in maintenance_records:
+                    print(
+                        f"Maintenance ID: {record[0]}, Name: {record[1]}, Date: {record[2]}, Description: {record[3]}, Vehicle Model: {record[4]}")
+            else:
+                print("No past maintenance records found for this user.")
+
+        elif choice == '2':
+            model = input("Enter vehicle model: ")
+            miles = int(input("Enter vehicle miles: "))
+            type_ = input("Enter vehicle type: ")
+            year = int(input("Enter vehicle year: "))
+            c.execute("INSERT INTO VEHICLE (miles, type, model, year) VALUES (?, ?, ?, ?)",
+                      (miles, type_, model, year))
+            vehicle_id = c.lastrowid
+            c.execute("INSERT INTO USER_VEHICLE (userId, vehicleId) VALUES (?, ?)", (user_id, vehicle_id))
+            conn.commit()
+            print("New vehicle added.")
+
+            # Display all vehicles for the user
+            c.execute("""
+                                SELECT V.vehicleId, V.model, V.type, V.year, V.miles
+                                FROM VEHICLE V
+                                JOIN USER_VEHICLE UV ON V.vehicleId = UV.vehicleId
+                                WHERE UV.userId = ?
+                            """, (user_id,))
+            vehicles = c.fetchall()
+            print("\nAll Vehicles:")
+            for vehicle in vehicles:
+                print(
+                    f"Vehicle ID: {vehicle[0]}, Model: {vehicle[1]}, Type: {vehicle[2]}, Year: {vehicle[3]}, Miles: {vehicle[4]}")
+
+
+        elif choice == '3':
+            # Add New Appointment
+
+            # List Vehicles
+            c.execute(
+                "SELECT V.vehicleId, V.model FROM VEHICLE V JOIN USER_VEHICLE UV ON V.vehicleId = UV.vehicleId WHERE UV.userId = ?",
+                (user_id,))
+            vehicles = c.fetchall()
+            for vehicle in vehicles:
+                print(f"Vehicle ID: {vehicle[0]}, Model: {vehicle[1]}")
+            vehicle_id = input("Choose your vehicle ID: ")
+
+            # List Repair Shops
+            c.execute("SELECT shopId, address FROM REPAIR_SHOP")
+            shops = c.fetchall()
+            for shop in shops:
+                print(f"Shop ID: {shop[0]}, Address: {shop[1]}")
+            shop_id = input("Choose repair shop ID: ")
+
+            date = input("Enter the date of the appointment (YYYY-MM-DD): ")
+
+            c.execute("INSERT INTO APPOINTMENT (date, userId, vehicleId, shopId) VALUES (?, ?, ?, ?)",
+                      (date, user_id, vehicle_id, shop_id))
+            conn.commit()
+            print("New appointment added.")
