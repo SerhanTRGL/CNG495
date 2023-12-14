@@ -273,5 +273,20 @@ class ClientThread(Thread):
         print("Connection terminated - ", self.clientAddress)
         self.clientSocket.close()
 
-HOST = "34.155.248.200 "
+HOST = "34.155.248.200"
 PORT = 3389
+
+serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+try:
+    serverSocket.bind((HOST, PORT))
+except socket.error:
+    print("Connection failed!")
+    exit(1)
+print("Waiting for connections")
+while True:
+    serverSocket.listen()
+    clientSocket, clientAddress = serverSocket.accept()
+    newThread = ClientThread(clientSocket, clientAddress)
+    newThread.start()
