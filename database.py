@@ -250,3 +250,95 @@ def userMenu(conn, user_id):
                       (date, user_id, vehicle_id, shop_id))
             conn.commit()
             print("New appointment added.")
+
+def repairShopMenu(conn, shop_id):
+    c = conn.cursor()
+    while True:
+        print("\nRepair Shop Menu:")
+        print("1. Show All User Information")
+        print("2. Add New Maintenance Record")
+        print("3. View Appointments")
+        print("4. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            # Show All User Information
+            c.execute("""
+                SELECT U.userId, U.name, U.email, U.phoneNumber
+                FROM USER U
+                JOIN APPOINTMENT A ON U.userId = A.userId
+                JOIN SHOP_APPOINTMENT SA ON A.appointmentId = SA.appointmentId
+                WHERE SA.shopId = ?
+            """, (shop_id,))
+            users = c.fetchall()
+            if users:
+                for user in users:
+                    print(f"User ID: {user[0]}, Name: {user[1]}, Email: {user[2]}, Phone: {user[3]}")
+            else:
+                print("No users found for this repair shop.")
+
+        elif choice == '2':
+            # Add New Maintenance Record
+
+            # Step 1: List Users and Select User
+            c.execute("""
+                            SELECT U.userId, U.name
+                            FROM USER U
+                            JOIN APPOINTMENT A ON U.userId = A.userId
+                            JOIN SHOP_APPOINTMENT SA ON A.appointmentId = SA.appointmentId
+                            WHERE SA.shopId = ?
+                        """, (shop_id,))
+            users = c.fetchall()
+            for user in users:
+                print(f"User ID: {user[0]}, Name: {user[1]}")
+
+            selected_user_id = input("Enter the User ID for maintenance: ")
+
+            # Step 2: List User's Vehicles
+            c.execute("""
+                            SELECT V.vehicleId, V.model
+                            FROM VEHICLE V
+                            JOIN USER_VEHICLE UV ON V.vehicleId = UV.vehicleId
+                            WHERE UV.userId = ?
+                        """, (selected_user_id,))
+            vehicles = c.fetchall()
+            for vehicle in vehicles:
+                print(f"Vehicle ID: {vehicle[0]}, Model: {vehicle[1]}")
+
+            selected_vehicle_id = input("Enter the Vehicle ID for maintenance: ")
+
+            # Step 3 & 4: Enter Maintenance Details
+            cost = input("Enter maintenance cost: ")
+            name = input("Enter maintenance name: ")
+            date = input("Enter date (YYYY-MM-DD): ")
+            description = input("Enter maintenance description: ")
+
+            c.execute("INSERT INTO MAINTENANCE (cost, name, date, description, shopId) VALUES (?, ?, ?, ?, ?)",
+                      (cost, name, date, description, shop_id))
+            maintenance_id = c.lastrowid
+            c.execute("INSERT INTO VEHICLE_MAINTENANCE (vehicleId, maintenanceId) VALUES (?, ?)",
+                      (selected_vehicle_id, maintenance_id))
+            conn.commit()
+            print("New maintenance record added with ID:", maintenance_id)
+
+        elif choice == '3':
+            # View Appointments
+            c.execute("""
+                        SELECT A.appointmentId, A.date, U.name, V.model
+                        FROM APPOINTMENT A
+                        JOIN USER U ON A.userId = U.userId
+                        JOIN VEHICLE V ON A.vehicleId = V.vehicleId
+                        WHERE A.shopId = ?
+                    """, (shop_id,))
+            appointments = c.fetchall()
+            if appointments:
+                for appt in appointments:
+                    print(f"Appointment ID: {appt[0]}, Date: {appt[1]}, User Name: {appt[2]}, Vehicle Model: {appt[3]}")
+            else:
+                print("No appointments found for this shop.")
+
+        elif choice == '4':
+            # Exit the menu
+            print("Exiting Repair Shop Menu...")
+            break
