@@ -342,3 +342,83 @@ def repairShopMenu(conn, shop_id):
             # Exit the menu
             print("Exiting Repair Shop Menu...")
             break
+
+
+def adminMenu(conn):
+    c = conn.cursor()
+    while True:
+        print("\nAdmin Menu:")
+        print("1. View Repair Shop Statistics")
+        print("2. Add New Repair Shop")
+        print("3. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            # View Repair Shop Statistics
+            c.execute("""
+                SELECT RS.shopId, RS.email, SUM(M.cost) AS total_income
+                FROM REPAIR_SHOP RS
+                JOIN MAINTENANCE M ON RS.shopId = M.shopId
+                GROUP BY RS.shopId
+            """)
+            stats = c.fetchall()
+            for stat in stats:
+                print(f"Repair Shop {stat[0]} ({stat[1]}) Total Income: {stat[2]}")
+
+        elif choice == '2':
+            # Add New Repair Shop
+            email = input("Enter repair shop email: ")
+            phone = input("Enter repair shop phone number: ")
+            address = input("Enter repair shop address: ")
+            status = input("Enter repair shop status: ")
+            password = input("Enter repair shop password: ")
+            c.execute("INSERT INTO REPAIR_SHOP (email, phoneNumber, address, status, password) VALUES (?, ?, ?, ?, ?)",
+                      (email, phone, address, status, password))
+            conn.commit()
+            print("New repair shop added.")
+
+        elif choice == '3':
+            print("Exiting Admin Menu...")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    dbname = input("Enter db name: ")
+    # createDatabase(dbname)
+    # insertRecords(dbname)
+
+    conn = sqlite3.connect(dbname)
+    c = conn.cursor()
+
+
+    userType = input("Are you a 'user', 'repair shop', or 'admin'? Enter 'user', 'shop', or 'admin': ")
+    email = input("Enter email: ")
+    password = input("Enter password: ")
+
+    if userType.lower() == 'user':
+        c.execute("SELECT userId FROM USER WHERE email=? AND password=?", (email, password))
+        user = c.fetchone()
+        if user:
+            userMenu(conn, user[0])
+        else:
+            print("Invalid user credentials.")
+
+    elif userType.lower() == 'shop':
+        c.execute("SELECT shopId FROM REPAIR_SHOP WHERE email=? AND password=?", (email, password))
+        shop = c.fetchone()
+        if shop:
+            repairShopMenu(conn, shop[0])
+        else:
+            print("Invalid repair shop credentials.")
+
+    elif userType.lower() == 'admin':
+        c.execute("SELECT adminId FROM ADMIN WHERE email=? AND password=?", (email, password))
+        admin = c.fetchone()
+        if admin:
+            adminMenu(conn)
+        else:
+            print("Invalid admin credentials.")
+
+    conn.close()
