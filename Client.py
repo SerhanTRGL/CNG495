@@ -356,3 +356,72 @@ class Repairshop(Frame):
     def buttonPressedClose(self):
         self.master.destroy()
 
+class AddMaintanance(Frame):
+    def __init__(self):
+        Frame.__init__(self)
+        self.pack()
+        self.master.title("Add Maintanance")
+
+        self.frame1 = Frame(self)
+        self.frame1.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.carIDLbl = Label(self.frame1, text="Car ID:")
+        self.carIDLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH, anchor="w")
+
+        self.carIDEntry = Entry(self.frame1, name="id")
+        self.carIDEntry.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.frame2 = Frame(self)
+        self.frame2.pack(padx=5, pady=5)
+
+        self.carMaintananceCostLbl = Label(self.frame2, text="Maintanance Cost:")
+        self.carMaintananceCostLbl.pack(side=LEFT, padx=5, pady=5, anchor="w")
+
+        self.carMaintananceCostEntry = Entry(self.frame2, name="cost")
+        self.carMaintananceCostEntry.pack(padx=5, pady=5)
+
+        self.frame3 = Frame(self)
+        self.frame3.pack(padx=5, pady=5)
+
+        self.maintananceTypeLbl = Label(self.frame3, text="Maintanance Type:")
+        self.maintananceTypeLbl.pack(side=LEFT, padx=5, pady=5, anchor="w")
+
+        self.maintananceTypeEntry = Entry(self.frame3, name="type")
+        self.maintananceTypeEntry.pack(padx=5, pady=5)
+
+        self.frame4 = Frame(self)
+        self.frame4.pack(padx=5, pady=5)
+
+        self.maintananceEndDateLbl = Label(self.frame4, text="Maintanance End Date:")
+        self.maintananceEndDateLbl.pack(side=LEFT, padx=5, pady=5, anchor="w")
+
+        self.maintananceEndDateEntry = Entry(self.frame4, name="enddate")
+        self.maintananceEndDateEntry.pack(padx=5, pady=5)
+
+        self.frame5 = Frame(self)
+        self.frame5.pack(padx=5, pady=5)
+
+        self.maintananceDescriptionLbl = Label(self.frame5, text="Maintanance Description:")
+        self.maintananceDescriptionLbl.pack(side=LEFT, padx=5, pady=5, anchor="w")
+
+        self.maintananceDescriptionEntry = Entry(self.frame5, name="description")
+        self.maintananceDescriptionEntry.pack(padx=5, pady=5)
+
+        self.frame6 = Frame(self)
+        self.frame6.pack(padx=5, pady=5)
+
+        self.addMaintananceBtn = Button(self.frame6, text="Add", command=self.buttonPressedAddMaintanance)
+        self.addMaintananceBtn.pack(padx=5, pady=5)
+
+        self.frame7 = Frame(self)
+        self.frame7.pack(padx=5, pady=5)
+
+        self.closeBtn = Button(self.frame7, text="Close", command=self.buttonPressedClose)
+        self.closeBtn.pack(padx=5, pady=5)
+
+
+    def buttonPressedAddMaintanance(self):
+        messagebox.showinfo("Message","Maintanace is added!")
+
+    def buttonPressedClose(self):
+        self.master.destroy()
