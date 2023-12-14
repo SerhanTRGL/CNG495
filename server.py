@@ -174,3 +174,101 @@ def insertRecords(dbname):
 
     conn.commit()
     conn.close()
+
+class ClientThread(Thread):
+
+    # clientSocket represents connection
+    def __init__(self, clientSocket, clientAddress):
+        Thread.__init__(self)
+        self.clientSocket = clientSocket
+        self.clientAddress = clientAddress
+
+    def run(self):
+
+        dbname = "car.db"
+        # createDatabase(dbname)
+        # insertRecords(dbname)
+
+
+
+        msg = "SERVER>>> connectionsuccess".encode()
+        self.clientSocket.send(msg)
+        clientMsg = self.clientSocket.recv(1024).decode()
+        originalMessage = copy.deepcopy(clientMsg)
+        clientMsg = clientMsg.split(";")
+
+        while clientMsg[0] != "CLIENT>>> TERMINATE":
+            if clientMsg[0] == "CLIENT>>> login":
+                conn = sqlite3.connect(dbname)
+                c = conn.cursor()
+                print(originalMessage)
+                if clientMsg[3] == 'user':
+                    c.execute("SELECT userId FROM USER WHERE email=? AND password=?", (clientMsg[1], clientMsg[2]))
+                    user = c.fetchone()
+                    if user:
+                        msg = ("SERVER>>> loginsuccess" + ";" + clientMsg[1] + ";" + clientMsg[3]).encode()
+                    else:
+                        msg = "SERVER>>> loginfailure".encode()
+
+                elif clientMsg[3] == 'shop':
+                    c.execute("SELECT shopId FROM REPAIR_SHOP WHERE email=? AND password=?", (clientMsg[1], clientMsg[2]))
+                    shop = c.fetchone()
+                    if shop:
+                        msg = ("SERVER>>> loginsuccess" + ";" + clientMsg[1] + ";" + clientMsg[3]).encode()
+                    else:
+                        msg = "SERVER>>> loginfailure".encode()
+
+                elif clientMsg[3] == 'admin':
+                    c.execute("SELECT adminId FROM ADMIN WHERE email=? AND password=?", (clientMsg[1], clientMsg[2]))
+                    admin = c.fetchone()
+                    if admin:
+                        msg = ("SERVER>>> loginsuccess" + ";" + clientMsg[1] + ";" + clientMsg[3]).encode()
+                    else:
+                        msg = "SERVER>>> loginfailure".encode()
+                self.clientSocket.send(msg)
+                conn.close()
+
+            elif clientMsg[0] == "CLIENT>>> showRepairshopAnalytics":
+                conn = sqlite3.connect(dbname)
+                c = conn.cursor()
+                print(originalMessage)
+                c.execute("""
+                            SELECT RS.shopId, RS.email, SUM(M.cost) AS total_income
+                            FROM REPAIR_SHOP RS
+                            JOIN MAINTENANCE M ON RS.shopId = M.shopId
+                            GROUP BY RS.shopId
+                """)
+                stats = c.fetchall()
+                print(stats)
+                statList = ""
+                for stat in stats:
+                    statList += str(stat[0]) + "," + str(stat[2]) + ";"
+
+
+                msg = ("SERVER>>> showAnalyticsSuccess;" + statList).encode()
+                self.clientSocket.send(msg)
+                conn.close()
+
+            elif clientMsg[0] == "CLIENT>>> addRepairshop":
+                print(originalMessage)
+                conn = sqlite3.connect(dbname)
+                c = conn.cursor()
+                c.execute(
+                    "INSERT INTO REPAIR_SHOP (email, phoneNumber, address, status, password) VALUES (?, ?, ?, ?, ?)",
+                    (clientMsg[1], clientMsg[2], clientMsg[3], clientMsg[4], clientMsg[5]))
+                conn.commit()
+
+                msg = "SERVER>>> addRepairshopSuccess".encode()
+                self.clientSocket.send(msg)
+
+                conn.close()
+
+            clientMsg = self.clientSocket.recv(1024).decode()
+            originalMessage = copy.deepcopy(clientMsg)
+            clientMsg = clientMsg.split(";")
+
+
+        msg = "SERVER>>> TERMINATE".encode()
+        self.clientSocket.send(msg)
+        print("Connection terminated - ", self.clientAddress)
+        self.clientSocket.close()
