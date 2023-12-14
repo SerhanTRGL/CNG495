@@ -226,3 +226,65 @@ class NewAppointment(Frame):
 
     def buttonPressedClose(self):
         self.master.destroy()
+
+class CarOwnerAddCar(Frame):
+
+    def __init__(self):
+        Frame.__init__(self)
+        self.pack()
+        self.master.title("Add Car")
+
+
+        self.frame1 = Frame(self)
+        self.frame1.pack(padx=5, pady=5)
+
+        self.carModelLbl = Label(self.frame1, text="Car Model:")
+        self.carModelLbl.pack(side=LEFT, padx=5, pady=5)
+
+        self.carModelEntry = Entry(self.frame1, name="carmodel")
+        self.carModelEntry.pack(padx=5, pady=5)
+
+        self.frame2 = Frame(self)
+        self.frame2.pack(padx=5, pady=5)
+
+        self.carMilesLbl = Label(self.frame2, text="Car Miles:")
+        self.carMilesLbl.pack(side=LEFT, padx=5, pady=5)
+
+        self.carMilesEntry = Entry(self.frame2, name="carmiles")
+        self.carMilesEntry.pack(padx=5, pady=5)
+
+        self.frame3 = Frame(self)
+        self.frame3.pack(padx=5, pady=5)
+
+        self.carTypeLbl = Label(self.frame3, text="Car Type:")
+        self.carTypeLbl.pack(side=LEFT, padx=5, pady=5)
+
+        self.carTypeEntry = Entry(self.frame3, name="cartype")
+        self.carTypeEntry.pack(padx=5, pady=5)
+
+        self.frame4 = Frame(self)
+        self.frame4.pack(padx=5, pady=5)
+
+        self.carYearLbl = Label(self.frame4, text="Car Year:")
+        self.carYearLbl.pack(side=LEFT, padx=5, pady=5)
+
+        self.carYearEntry = Entry(self.frame4, name="caryear")
+        self.carYearEntry.pack(padx=5, pady=5)
+
+        self.frame5 = Frame(self)
+        self.frame5.pack(padx=5, pady=5)
+
+        self.addCarBtn = Button(self.frame5, text="Add", command=self.buttonPressedAddCar)
+        self.addCarBtn.pack(padx=5, pady=5)
+
+        self.frame6 = Frame(self)
+        self.frame6.pack(padx=5, pady=5)
+
+        self.closeBtn = Button(self.frame6, text="Close", command=self.buttonPressedClose)
+        self.closeBtn.pack(padx=5, pady=5)
+
+    def buttonPressedAddCar(self):
+        messagebox.showinfo("Message","Car is added!")
+
+    def buttonPressedClose(self):
+        self.master.destroy()
