@@ -288,3 +288,71 @@ class CarOwnerAddCar(Frame):
 
     def buttonPressedClose(self):
         self.master.destroy()
+
+class Repairshop(Frame):
+
+    def __init__(self):
+        Frame.__init__(self)
+        self.pack()
+        self.master.title("RepairShop Menu")
+
+        self.frame1 = Frame(self)
+        self.frame1.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.showCarOwnerLbl = Label(self.frame1, text="Show All Car OwnerS", anchor="w")
+        self.showCarOwnerLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.showCarOwnerBtn = Button(self.frame1, text="Show", command=self.buttonPressedShowCarOwner)
+        self.showCarOwnerBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.frame5 = Frame(self)
+        self.frame5.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.showAppointmentLbl = Label(self.frame5, text="Show All Appointments", anchor="w")
+        self.showAppointmentLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.showAppointmentBtn = Button(self.frame5, text="Show", command=self.buttonPressedShowAppointments)
+        self.showAppointmentBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.frame2 = Frame(self)
+        self.frame2.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.addMaintananceLbl = Label(self.frame2, text="Add New Maintanance", anchor="w")
+        self.addMaintananceLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.addMaintananceBtn = Button(self.frame2, text="Add", command=self.buttonPressedAddMaintanance)
+        self.addMaintananceBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.frame3 = Frame(self)
+        self.frame3.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.updateMaintananceLbl = Label(self.frame3, text="Update Maintanance Date", anchor="w")
+        self.updateMaintananceLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.updateMaintananceBtn = Button(self.frame3, text="Update", command=self.buttonPressedUpdateMaintanance)
+        self.updateMaintananceBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.frame4= Frame(self)
+        self.frame4.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.closeBtn = Button(self.frame4, text="Close", command=self.buttonPressedClose)
+        self.closeBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+    def buttonPressedShowCarOwner(self):
+        messagebox.showinfo("Message", "Your Car OwnerS are: ")
+
+    def buttonPressedShowAppointments(self):
+        messagebox.showinfo("Message", "Your Appointments are: ")
+
+    def buttonPressedUpdateMaintanance(self):
+        self.master.destroy()
+        updateMaintananceWindow = UpdateMaintanance()
+        updateMaintananceWindow.mainloop()
+    def buttonPressedAddMaintanance(self):
+        self.master.destroy()
+        addMaintananceWindow = AddMaintanance()
+        addMaintananceWindow.mainloop()
+
+    def buttonPressedClose(self):
+        self.master.destroy()
+
