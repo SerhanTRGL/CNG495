@@ -272,3 +272,6 @@ class ClientThread(Thread):
         self.clientSocket.send(msg)
         print("Connection terminated - ", self.clientAddress)
         self.clientSocket.close()
+
+HOST = "34.155.248.200 "
+PORT = 3389
