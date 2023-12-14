@@ -568,3 +568,89 @@ class SystemAdmin(Frame):
 
     def buttonPressedClose(self):
         self.master.destroy()
+
+class AddRepairshop(Frame):
+    def __init__(self):
+        Frame.__init__(self)
+        self.pack()
+        self.master.title("Add Repair Shop")
+
+        self.frame1 = Frame(self)
+        self.frame1.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.repairshopEmailLbl = Label(self.frame1, text="Repair Shop Email:")
+        self.repairshopEmailLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH, anchor="w")
+
+        self.repairshopEmailEntry = Entry(self.frame1, name="repairshopemail")
+        self.repairshopEmailEntry.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.frame2 = Frame(self)
+        self.frame2.pack(padx=5, pady=5)
+
+        self.repairshopPhoneNoLbl = Label(self.frame2, text="Repair Shop Phone Number:")
+        self.repairshopPhoneNoLbl.pack(side=LEFT, padx=5, pady=5, anchor="w")
+
+        self.repairshopPhoneNoEntry = Entry(self.frame2, name="repairshopphoneno")
+        self.repairshopPhoneNoEntry.pack(padx=5, pady=5)
+
+        self.frame3 = Frame(self)
+        self.frame3.pack(padx=5, pady=5)
+
+        self.repairshopAddressLbl = Label(self.frame3, text="Repair Shop Address:")
+        self.repairshopAddressLbl.pack(side=LEFT, padx=5, pady=5, anchor="w")
+
+        self.repairshopAddressEntry = Entry(self.frame3, name="repairshopaddress")
+        self.repairshopAddressEntry.pack(padx=5, pady=5)
+
+        self.frame4 = Frame(self)
+        self.frame4.pack(padx=5, pady=5)
+
+        self.repairshopStatusLbl = Label(self.frame4, text="Repair Shop Status:")
+        self.repairshopStatusLbl.pack(side=LEFT, padx=5, pady=5, anchor="w")
+
+        self.repairshopStatusEntry = Entry(self.frame4, name="repairshopstatus")
+        self.repairshopStatusEntry.pack(padx=5, pady=5)
+
+        self.frame5 = Frame(self)
+        self.frame5.pack(padx=5, pady=5)
+
+        self.repairshopPasswordLbl = Label(self.frame5, text="Repair Shop Password:")
+        self.repairshopPasswordLbl.pack(side=LEFT, padx=5, pady=5, anchor="w")
+
+        self.repairshopPasswordEntry = Entry(self.frame5, name="repairshoppassword")
+        self.repairshopPasswordEntry.pack(padx=5, pady=5)
+
+        self.frame6 = Frame(self)
+        self.frame6.pack(padx=5, pady=5)
+
+        self.addRepairShopBtn = Button(self.frame6, text="Add", command=self.buttonPressedAddRepairshop)
+        self.addRepairShopBtn.pack(padx=5, pady=5)
+
+        self.frame7 = Frame(self)
+        self.frame7.pack(padx=5, pady=5)
+
+        self.closeBtn = Button(self.frame7, text="Close", command=self.buttonPressedClose)
+        self.closeBtn.pack(padx=5, pady=5)
+
+    def buttonPressedAddRepairshop(self):
+        email = self.repairshopEmailEntry.get()
+        phoneNumber = self.repairshopPhoneNoEntry.get()
+        address = self.repairshopAddressEntry.get()
+        status = self.repairshopStatusEntry.get()
+        password = self.repairshopPasswordEntry.get()
+
+        clientMsg = "addRepairshop;" + email + ";" + phoneNumber + ";" + address + ";" + status + ";" + password
+        print(clientMsg)
+        msg = ("CLIENT>>> " + clientMsg).encode()
+        clientSocket.send(msg)
+
+        serverMsg = clientSocket.recv(1024).decode()
+        print(serverMsg)
+        serverMsg = serverMsg.split(";")  # after getting server message, I splitted it
+        if serverMsg[0] == "SERVER>>> addRepairshopSuccess":
+            messagebox.showinfo("Message", "Repairshop has been successfully added!")
+        else:
+            messagebox.showerror("Error", "Repairshop has NOT been successfully added!")
+
+    def buttonPressedClose(self):
+        self.master.destroy()
