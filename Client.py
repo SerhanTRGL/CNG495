@@ -164,3 +164,65 @@ class CarOwner(Frame):
 
 class ShowCarStatus(Frame):
     pass
+
+class NewAppointment(Frame):
+    def __init__(self):
+        Frame.__init__(self)
+        self.pack()
+        self.master.title("Make Appointment")
+
+
+        self.frame1 = Frame(self)
+        self.frame1.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.rapairshopIDLbl = Label(self.frame1, text="Repairshop ID:")
+        self.rapairshopIDLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH, anchor="w")
+
+        self.rapairshopIDEntry = Entry(self.frame1, name="repairshop ID")
+        self.rapairshopIDEntry.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+
+
+
+
+
+        self.frame2 = Frame(self)
+        self.frame2.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.carIDLbl = Label(self.frame2, text="Car ID:")
+        self.carIDLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH, anchor="w")
+
+        self.carIDEntry = Entry(self.frame2, name="carid")
+        self.carIDEntry.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+
+
+
+
+        self.frame3 = Frame(self)
+        self.frame3.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.appointmentDateLbl = Label(self.frame3, text="Appointment Date:")
+        self.appointmentDateLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH, anchor="w")
+
+        self.appointmentDateEntry = Entry(self.frame3, name="appointmentdate")
+        self.appointmentDateEntry.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+
+        self.frame4 = Frame(self)
+        self.frame4.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.makeAppointmentBtn = Button(self.frame4, text="Add", command=self.buttonPressedMakeAppointment)
+        self.makeAppointmentBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.frame5 = Frame(self)
+        self.frame5.pack(padx=5, pady=5 ,expand=YES, fill=BOTH)
+
+        self.closeBtn = Button(self.frame5, text="Close", command=self.buttonPressedClose)
+        self.closeBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+    def buttonPressedMakeAppointment(self):
+        messagebox.showinfo("Message","Appointment is added!")
+
+    def buttonPressedClose(self):
+        self.master.destroy()
