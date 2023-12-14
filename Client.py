@@ -81,3 +81,84 @@ class Login(Frame):
             else:
                 exit(1)
 
+class CarOwner(Frame):
+
+    def __init__(self):
+        Frame.__init__(self)
+        self.pack()
+        self.master.title("Car Owner Menu")
+
+        self.frame1 = Frame(self)
+        self.frame1.pack(padx=15, pady=25, expand=YES, fill=BOTH)
+
+        bold_font = font.Font(weight="bold")
+        self.mainTitle = Label(self.frame1, text="QUERIES & BUTTONS", font=bold_font)
+        self.mainTitle.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.frame2 = Frame(self)
+        self.frame2.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.showPastLbl = Label(self.frame2, text="Show My Past Transactions",anchor="w")
+        self.showPastLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.showPastBtn = Button(self.frame2, text="Show", command=self.buttonPressedShowPast)
+        self.showPastBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.frame3 = Frame(self)
+        self.frame3.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.newAppointmentLbl = Label(self.frame3, text="Add New Appointment",anchor="w")
+        self.newAppointmentLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.newAppointmentBtn = Button(self.frame3, text="Add", command=self.buttonPressedNewAppointment)
+        self.newAppointmentBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.frame4 = Frame(self)
+        self.frame4.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.newCarLbl = Label(self.frame4, text="Add New Car", anchor="w")
+        self.newCarLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.newCarBtn = Button(self.frame4, text="Add", command=self.buttonPressedAddCar)
+        self.newCarBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+
+        self.frame5 = Frame(self)
+        self.frame5.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.carStatusLbl = Label(self.frame5, text="Show My Car Status", anchor="w")
+        self.carStatusLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.carStatusBtn = Button(self.frame5, text="Show", command=self.buttonPressedShowStatus)
+        self.carStatusBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.frame6 = Frame(self)
+        self.frame6.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+        self.closeBtn = Button(self.frame6, text="Close", command=self.buttonPressedClose)
+        self.closeBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+
+
+    def buttonPressedShowPast(self):
+        messagebox.showinfo("Message", "Your past transactions are: ")
+    def buttonPressedNewAppointment(self):
+        self.master.destroy()
+        appointmentWindow = NewAppointment()
+        appointmentWindow.mainloop()
+
+
+
+    def buttonPressedAddCar(self):
+        self.master.destroy()
+        addCarWindow = CarOwnerAddCar()
+        addCarWindow.mainloop()
+
+    def buttonPressedShowStatus(self):
+        # self.master.destroy()
+        # showStatusWindow = ShowCarStatus()
+        # showStatusWindow.mainloop()
+        messagebox.showinfo("Message", "Your car status is: ")
+
+    def buttonPressedClose(self):
+        self.master.destroy()
+
