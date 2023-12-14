@@ -654,3 +654,28 @@ class AddRepairshop(Frame):
 
     def buttonPressedClose(self):
         self.master.destroy()
+
+if __name__ == "__main__":
+    HOST = "127.0.0.1"
+    PORT = 5000
+
+    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    try:
+        clientSocket.connect((HOST, PORT))
+    except socket.error:
+        print("Connection error!")
+
+    serverMsg = clientSocket.recv(1024).decode()
+    if serverMsg == "SERVER>>> connectionsuccess":
+        print(serverMsg)
+        window = Login()
+        window.mainloop()
+
+        # serverMsg = clientSocket.recv(1024).decode()
+
+    else:
+        msg = "CLIENT>>> TERMINATE".encode()
+        clientSocket.send(msg)
+        print("Connection terminated! ")
+        clientSocket.close()
