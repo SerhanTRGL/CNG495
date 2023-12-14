@@ -162,3 +162,5 @@ class CarOwner(Frame):
     def buttonPressedClose(self):
         self.master.destroy()
 
+class ShowCarStatus(Frame):
+    pass
