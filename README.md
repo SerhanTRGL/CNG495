@@ -2,10 +2,11 @@ Car Repair Shop Management System with Cloud Server
 
 --Client.py
 - Which you can run on your machine to connect to the server!
--   As of right now, you may enter to the system with the following details:
+-   As of right now, there is only a single admin account and below are the details:
 -     admin@example.com
 -     adminpassword
 -     admin (choose it on the "Roles" radio button!)
+-   For user login, follow the registration process
 
 --Client.py Registration
 -   With the *new* update, you may register to the system with your own details!
