@@ -4,8 +4,41 @@ from threading import *
 import socket
 from datetime import datetime
 import sqlite3
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
+senderEmail = "carmanagementSystemMETUNCC@gmail.com"
+password = "tsan uyja hvbg fydf"  # App specific password
 
+def send_email(subject, message, from_email, to_email, password, smtp_server='smtp.gmail.com', smtp_port=587):
+    # Create message container
+    msg = MIMEMultipart()
+    msg['From'] = from_email
+    msg['To'] = to_email
+    msg['Subject'] = subject
+
+    # Attach message
+    msg.attach(MIMEText(message, 'plain'))
+
+    try:
+        # Establish a secure session with the SMTP server
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+
+        # Login to the email server
+        server.login(from_email, password)
+
+        # Send the email
+        server.sendmail(from_email, to_email, msg.as_string())
+
+        # Close the SMTP server connection
+        server.quit()
+
+        print("Email sent successfully!")
+    except Exception as e:
+        print("Email could not be sent.")
+        print(e)
 
 class ClientThread(Thread):
 
@@ -95,6 +128,15 @@ class ClientThread(Thread):
                 c.execute("INSERT INTO APPOINTMENT(userId,vehicleId,shopId,date) VALUES (?,?,?,?)", appointmentData)
                 conn.commit()
                 conn.close()
+                subject = "Your appointment has been successfully made!"
+                message = (f"{clientMsg[1]}, your car appointment has been successfully made. You may see the details below:\n"
+                           f"Vehicle ID: {clientMsg[3]}\n"
+                           f"Shop ID: {clientMsg[4]}\n"
+                           f"Appointment date: {clientMsg[5]}\n"
+                           f"Please do not miss your appointment.\n"
+                           f"Regards,\n"
+                           f"Car Repair Management System Administration...")
+                send_email(subject, message, senderEmail, clientMsg[1],password);
                 msg = "SERVER>>> addnewappointmentsuccess".encode()
                 self.clientSocket.send(msg)
 
