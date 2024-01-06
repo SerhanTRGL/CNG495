@@ -12,3 +12,6 @@ Car Repair Shop Management System with Cloud Server
 - It handles generating queries with the details sent by a number of clients
 - Executes these queries on the database (which is also located on Google Cloud Platform)
 - And sends the result of these queries back to the client.
+
+--Submissions
+- Here you may find all the submissions that was made on ODTUClass
