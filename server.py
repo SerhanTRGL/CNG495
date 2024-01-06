@@ -6,174 +6,6 @@ from datetime import datetime
 import sqlite3
 
 
-def createDatabase(dbname):
-    conn = sqlite3.connect(dbname)
-    c = conn.cursor()
-
-    c.execute("CREATE TABLE IF NOT EXISTS USER("
-              "userId INTEGER PRIMARY KEY,"
-              "name TEXT,"
-              "email TEXT,"
-              "password TEXT,"
-              "phoneNumber TEXT)")
-
-    c.execute("CREATE TABLE IF NOT EXISTS VEHICLE("
-              "vehicleId INTEGER PRIMARY KEY,"
-              "miles INTEGER,"
-              "type TEXT,"
-              "model TEXT,"
-              "year INTEGER)")
-
-    c.execute("CREATE TABLE IF NOT EXISTS MAINTENANCE("
-              "maintenanceId INTEGER PRIMARY KEY,"
-              "cost INTEGER,"
-              "name TEXT,"
-              "date TEXT,"
-              "description TEXT,"
-              "shopId INTEGER,"
-              "FOREIGN KEY(shopId) REFERENCES REPAIR_SHOP(shopId))")
-
-    c.execute("CREATE TABLE IF NOT EXISTS APPOINTMENT("
-              "appointmentId INTEGER PRIMARY KEY,"
-              "date TEXT,"
-              "userId INTEGER,"
-              "vehicleId INTEGER,"
-              "shopId INTEGER,"
-              "FOREIGN KEY(userId) REFERENCES USER(userId),"
-              "FOREIGN KEY(vehicleId) REFERENCES VEHICLE(vehicleId),"
-              "FOREIGN KEY(shopId) REFERENCES REPAIR_SHOP(shopId))")
-
-    c.execute("CREATE TABLE IF NOT EXISTS REPAIR_SHOP("
-              "shopId INTEGER PRIMARY KEY,"
-              "email TEXT,"
-              "phoneNumber TEXT,"
-              "address TEXT,"
-              "status TEXT,"
-              "password TEXT)")
-
-    c.execute("CREATE TABLE IF NOT EXISTS SCHEDULE("
-              "scheduleId INTEGER PRIMARY KEY,"
-              "startTime TEXT,"
-              "endTime TEXT)")
-
-    c.execute("CREATE TABLE IF NOT EXISTS USER_VEHICLE("
-              "userId INTEGER,"
-              "vehicleId INTEGER,"
-              "FOREIGN KEY(userId) REFERENCES USER(userId),"
-              "FOREIGN KEY(vehicleId) REFERENCES VEHICLE(vehicleId),"
-              "PRIMARY KEY(userId, vehicleId))")
-
-    c.execute("CREATE TABLE IF NOT EXISTS VEHICLE_MAINTENANCE("
-              "vehicleId INTEGER,"
-              "maintenanceId INTEGER,"
-              "FOREIGN KEY(vehicleId) REFERENCES VEHICLE(vehicleId),"
-              "FOREIGN KEY(maintenanceId) REFERENCES MAINTENANCE(maintenanceId),"
-              "PRIMARY KEY(vehicleId, maintenanceId))")
-
-    c.execute("CREATE TABLE IF NOT EXISTS SHOP_APPOINTMENT("
-              "shopId INTEGER,"
-              "appointmentId INTEGER,"
-              "FOREIGN KEY(shopId) REFERENCES REPAIR_SHOP(shopId),"
-              "FOREIGN KEY(appointmentId) REFERENCES APPOINTMENT(appointmentId),"
-              "PRIMARY KEY(shopId, appointmentId))")
-
-    c.execute("CREATE TABLE IF NOT EXISTS APPOINTMENT_SCHEDULE("
-              "appointmentId INTEGER,"
-              "scheduleId INTEGER,"
-              "FOREIGN KEY(appointmentId) REFERENCES APPOINTMENT(appointmentId),"
-              "FOREIGN KEY(scheduleId) REFERENCES SCHEDULE(scheduleId),"
-              "PRIMARY KEY(appointmentId, scheduleId))")
-
-    c.execute("CREATE TABLE IF NOT EXISTS ADMIN("
-              "adminId INTEGER PRIMARY KEY,"
-              "name TEXT,"
-              "email TEXT,"
-              "password TEXT)")
-
-    conn.commit()
-    conn.close()
-
-def insertRecords(dbname):
-    conn = sqlite3.connect(dbname)
-    c = conn.cursor()
-
-    users = [
-        (1, 'John Doe', 'john.doe@example.com', 'password123', '555-1234'),
-        (2, 'Jane Smith', 'jane.smith@example.com', 'password456', '555-5678'),
-        (3, 'Alice Johnson', 'alice.johnson@example.com', 'password789', '555-9012'),
-        (4, 'Eren Yarar', 'eren.yarar@metu.edu.tr', '1234', '555-668-73-70')
-    ]
-    c.executemany("INSERT INTO USER VALUES(?, ?, ?, ?, ?)", users)
-
-    vehicles = [
-        (1, 120000, 'Sedan', 'Model S', 2020),
-        (2, 23000, 'SUV', 'Model X', 2019),
-        (3, 5000, 'Compact', 'Model 3', 2021)
-    ]
-    c.executemany("INSERT INTO VEHICLE VALUES(?, ?, ?, ?, ?)", vehicles)
-
-    maintenance_records = [
-        (1, 1200, 'Oil Change', '2023-01-15', 'Regular oil change', 1),
-        (2, 500, 'Tire Replacement', '2023-02-20', 'Replaced all tires', 2),
-        (3, 300, 'Brake Service', '2023-03-10', 'Brake pads replaced', 1)
-    ]
-    c.executemany("INSERT INTO MAINTENANCE VALUES(?, ?, ?, ?, ?, ?)", maintenance_records)
-
-    appointments = [
-        (1, '2023-04-15', 1, 1, 1),  # Assuming userId 1, vehicleId 1, shopId 1
-        (2, '2023-04-20', 2, 2, 2),  # Assuming userId 2, vehicleId 2, shopId 2
-        (3, '2023-04-25', 3, 3, 1)  # Assuming userId 3, vehicleId 3, shopId 1
-    ]
-    c.executemany("INSERT INTO APPOINTMENT (appointmentId, date, userId, vehicleId, shopId) VALUES (?, ?, ?, ?, ?)",
-                  appointments)
-
-    repair_shops = [
-        (1, 'shop1@example.com', '555-0202', '1234 Main St', 'Open', 'shop1pass'),
-        (2, 'shop2@example.com', '555-0303', '5678 Second St', 'Closed', 'shop2pass')
-    ]
-    c.executemany("INSERT INTO REPAIR_SHOP VALUES(?, ?, ?, ?, ?, ?)", repair_shops)
-
-    schedules = [
-        (1, '08:00', '12:00'),
-        (2, '13:00', '17:00')
-    ]
-    c.executemany("INSERT INTO SCHEDULE VALUES(?, ?, ?)", schedules)
-
-    user_vehicles = [
-        (1, 1),
-        (2, 2),
-        (3, 3)
-    ]
-    c.executemany("INSERT INTO USER_VEHICLE VALUES(?, ?)", user_vehicles)
-
-    vehicle_maintenance = [
-        (1, 1),
-        (2, 2),
-        (3, 3)
-    ]
-    c.executemany("INSERT INTO VEHICLE_MAINTENANCE VALUES(?, ?)", vehicle_maintenance)
-
-    shop_appointments = [
-        (1, 1),
-        (2, 2)
-    ]
-    c.executemany("INSERT INTO SHOP_APPOINTMENT VALUES(?, ?)", shop_appointments)
-
-    appointment_schedules = [
-        (1, 1),
-        (2, 2),
-        (3, 1)
-    ]
-    c.executemany("INSERT INTO APPOINTMENT_SCHEDULE VALUES(?, ?)", appointment_schedules)
-
-    admin = [
-        ('Admin Name', 'admin@example.com', 'adminpassword')
-    ]
-
-    c.executemany("INSERT INTO ADMIN (name, email, password) VALUES (?, ?, ?)", admin)
-
-    conn.commit()
-    conn.close()
 
 class ClientThread(Thread):
 
@@ -184,13 +16,6 @@ class ClientThread(Thread):
         self.clientAddress = clientAddress
 
     def run(self):
-
-        dbname = "car.db"
-        # createDatabase(dbname)
-        # insertRecords(dbname)
-
-
-
         msg = "SERVER>>> connectionsuccess".encode()
         self.clientSocket.send(msg)
         clientMsg = self.clientSocket.recv(1024).decode()
@@ -199,14 +24,14 @@ class ClientThread(Thread):
 
         while clientMsg[0] != "CLIENT>>> TERMINATE":
             if clientMsg[0] == "CLIENT>>> login":
-                conn = sqlite3.connect(dbname)
+                conn = sqlite3.connect("car.db")
                 c = conn.cursor()
                 print(originalMessage)
                 if clientMsg[3] == 'user':
                     c.execute("SELECT userId FROM USER WHERE email=? AND password=?", (clientMsg[1], clientMsg[2]))
                     user = c.fetchone()
                     if user:
-                        msg = ("SERVER>>> loginsuccess" + ";" + clientMsg[1] + ";" + clientMsg[3]).encode()
+                        msg = ("SERVER>>> loginsuccess" + ";" + clientMsg[1] + ";" + clientMsg[3] + ";" + clientMsg[2]).encode()
                     else:
                         msg = "SERVER>>> loginfailure".encode()
 
@@ -228,8 +53,215 @@ class ClientThread(Thread):
                 self.clientSocket.send(msg)
                 conn.close()
 
+            elif clientMsg[0] == "CLIENT>>> showPastTransactions":
+                conn = sqlite3.connect("car.db")
+                c = conn.cursor()
+                print(originalMessage)
+                c.execute("SELECT userId FROM USER WHERE email=? AND password=?", (clientMsg[1], clientMsg[2]))
+                user_id = c.fetchone()
+
+                c.execute("""
+                               SELECT M.maintenanceId, M.name, M.date, M.description, V.model
+                               FROM MAINTENANCE M
+                               JOIN VEHICLE_MAINTENANCE VM ON M.maintenanceId = VM.maintenanceId
+                               JOIN USER_VEHICLE UV ON VM.vehicleId = UV.vehicleId
+                               JOIN VEHICLE V ON UV.vehicleId = V.vehicleId
+                               WHERE UV.userId = ?
+                           """, user_id)
+
+                maintenance_records = c.fetchall()
+
+                seperatedRecords = ';'.join(str(item) for item in maintenance_records)
+
+                if maintenance_records:
+                    msg = ("SERVER>>> pasttransactionssuccess;" + seperatedRecords).encode()
+                else:
+                    msg = ("SERVER>>> notransaction").encode()
+
+                self.clientSocket.send(msg)
+                conn.close()
+
+
+            elif clientMsg[0] == "CLIENT>>> addnewappointment":
+                conn = sqlite3.connect("car.db")
+                c = conn.cursor()
+                print(originalMessage)
+
+                #     get the user ID
+                c.execute("SELECT userId FROM USER WHERE email=? AND password=?", (clientMsg[1], clientMsg[2]))
+                user_id = c.fetchone()
+
+                appointmentData = user_id + (int(clientMsg[3]), ) + (int(clientMsg[4]), )+ (clientMsg[5], )
+                c.execute("INSERT INTO APPOINTMENT(userId,vehicleId,shopId,date) VALUES (?,?,?,?)", appointmentData)
+                conn.commit()
+                conn.close()
+                msg = "SERVER>>> addnewappointmentsuccess".encode()
+                self.clientSocket.send(msg)
+
+
+            elif clientMsg[0] == "CLIENT>>> addnewcar":
+                conn = sqlite3.connect("car.db")
+                c = conn.cursor()
+                print(originalMessage)
+
+                #     get the user ID
+                c.execute("SELECT userId FROM USER WHERE email=? AND password=?", (clientMsg[1], clientMsg[2]))
+                user_id = c.fetchone()
+
+
+                c.execute("INSERT INTO VEHICLE (miles, type, model, year) VALUES (?, ?, ?, ?)",
+                          (clientMsg[3], clientMsg[4], clientMsg[5], clientMsg[6]))
+                conn.commit()
+
+                vehicle_id = c.lastrowid
+                data = user_id + (vehicle_id, )
+
+                c.execute("INSERT INTO USER_VEHICLE (userId, vehicleId) VALUES (?, ?)", data)
+                conn.commit()
+
+                msg = "SERVER>>> addNewCarSuccess".encode()
+                self.clientSocket.send(msg)
+                conn.close()
+
+
+            elif clientMsg[0] == "CLIENT>>> showMyCars":
+                conn = sqlite3.connect("car.db")
+                c = conn.cursor()
+                print(originalMessage)
+                c.execute("SELECT userId FROM USER WHERE email=? AND password=?", (clientMsg[1], clientMsg[2]))
+                user_id = c.fetchone()
+
+                c.execute("SELECT vehicleId FROM USER_VEHICLE WHERE userId=?", user_id)
+                vehicle_ids = c.fetchall()
+                allCarIds = []
+                for id in vehicle_ids:
+                    allCarIds.append(id[0])
+
+                if len(allCarIds) > 1 and allCarIds:
+                    c.execute("SELECT * FROM VEHICLE WHERE vehicleId IN {}".format(tuple(allCarIds)))
+                elif allCarIds:
+                    c.execute("SELECT * FROM VEHICLE WHERE vehicleId=?", vehicle_ids[0])
+
+                records = c.fetchall()
+                seperatedRecords = ';'.join(str(item) for item in records)
+
+                if records:
+                    msg = ("SERVER>>> showallcarsuccess;" + seperatedRecords).encode()
+                else:
+                    msg = ("SERVER>>> nocartoshow").encode()
+
+                self.clientSocket.send(msg)
+                conn.close()
+
+
+            elif clientMsg[0] == "CLIENT>>> showcarowners":
+                conn = sqlite3.connect("car.db")
+                c = conn.cursor()
+                print(originalMessage)
+                c.execute("SELECT shopId FROM REPAIR_SHOP WHERE email=? AND password=?", (clientMsg[1], clientMsg[2]))
+                shop_id = c.fetchone()
+
+                # Show All User Information
+                c.execute("""
+                               SELECT U.userId, U.name, U.email, U.phoneNumber
+                               FROM USER U
+                               JOIN APPOINTMENT A ON U.userId = A.userId
+                               JOIN SHOP_APPOINTMENT SA ON A.appointmentId = SA.appointmentId
+                               WHERE SA.shopId = ?
+                           """, shop_id)
+                users = c.fetchall()
+
+                seperatedRecords = ';'.join(str(item) for item in users)
+
+                if users:
+                    msg = ("SERVER>>> showownersuccess;" + seperatedRecords).encode()
+                else:
+                    msg = ("SERVER>>> nouser").encode()
+
+                self.clientSocket.send(msg)
+                conn.close()
+
+
+            elif clientMsg[0] == "CLIENT>>> showappointments":
+                conn = sqlite3.connect("car.db")
+                c = conn.cursor()
+                print(originalMessage)
+                c.execute("SELECT shopId FROM REPAIR_SHOP WHERE email=? AND password=?", (clientMsg[1], clientMsg[2]))
+                shop_id = c.fetchone()
+
+                # View Appointments
+                c.execute("""
+                                        SELECT A.appointmentId, A.date, U.name, V.model
+                                        FROM APPOINTMENT A
+                                        JOIN USER U ON A.userId = U.userId
+                                        JOIN VEHICLE V ON A.vehicleId = V.vehicleId
+                                        WHERE A.shopId = ?
+                                    """, shop_id)
+                appointments = c.fetchall()
+                print(appointments)
+
+                seperatedRecords = ';'.join(str(item) for item in appointments)
+
+                if appointments:
+                    msg = ("SERVER>>> showappointmentsuccess;" + seperatedRecords).encode()
+                else:
+                    msg = ("SERVER>>> noappointment").encode()
+
+                self.clientSocket.send(msg)
+                conn.close()
+
+
+            elif clientMsg[0] == "CLIENT>>> addnewmaintanance":
+                conn = sqlite3.connect("car.db")
+                c = conn.cursor()
+                print(originalMessage)
+
+                #     get the SHOP ID
+                c.execute("SELECT shopId FROM REPAIR_SHOP WHERE email=? AND password=?", (clientMsg[1], clientMsg[2]))
+                shop_id = c.fetchone()
+
+                maintananceData = (int(clientMsg[4]), ) + (clientMsg[5], ) + (clientMsg[6], ) + (clientMsg[7], ) + shop_id
+
+
+                c.execute("INSERT INTO MAINTENANCE (cost, name, date, description, shopId) VALUES (?, ?, ?, ?, ?)", maintananceData)
+
+                maintenance_id = c.lastrowid
+                vehicleMaintanance = (maintenance_id, ) + (int(clientMsg[4]), )
+                c.execute("INSERT INTO VEHICLE_MAINTENANCE (vehicleId, maintenanceId) VALUES (?, ?)", vehicleMaintanance)
+                conn.commit()
+                conn.close()
+
+                msg = "SERVER>>> addnewmaintanancesuccess".encode()
+                self.clientSocket.send(msg)
+
+            elif clientMsg[0] == "CLIENT>>> updatemaintanance":
+
+                conn = sqlite3.connect("car.db")
+                c = conn.cursor()
+                print(originalMessage)
+
+                # Get the SHOP ID
+                c.execute("SELECT shopId FROM REPAIR_SHOP WHERE email=? AND password=?", (clientMsg[1], clientMsg[2]))
+                shop_id = c.fetchone()[0]
+
+                maintananceData = (int(clientMsg[4]), clientMsg[5], clientMsg[6], clientMsg[7], shop_id, int(clientMsg[3]))
+
+
+
+
+                c.execute("UPDATE MAINTENANCE SET  cost=?, name=?, date=?, description=?, shopId=? WHERE maintenanceId=?",maintananceData)
+
+                # Commit the changes
+                conn.commit()
+                conn.close()
+
+                msg = "SERVER>>> updatemaintanancesuccess".encode()
+                self.clientSocket.send(msg)
+
+
+
             elif clientMsg[0] == "CLIENT>>> showRepairshopAnalytics":
-                conn = sqlite3.connect(dbname)
+                conn = sqlite3.connect("car.db")
                 c = conn.cursor()
                 print(originalMessage)
                 c.execute("""
@@ -251,7 +283,7 @@ class ClientThread(Thread):
 
             elif clientMsg[0] == "CLIENT>>> addRepairshop":
                 print(originalMessage)
-                conn = sqlite3.connect(dbname)
+                conn = sqlite3.connect("car.db")
                 c = conn.cursor()
                 c.execute(
                     "INSERT INTO REPAIR_SHOP (email, phoneNumber, address, status, password) VALUES (?, ?, ?, ?, ?)",
@@ -268,13 +300,18 @@ class ClientThread(Thread):
             clientMsg = clientMsg.split(";")
 
 
+
         msg = "SERVER>>> TERMINATE".encode()
         self.clientSocket.send(msg)
         print("Connection terminated - ", self.clientAddress)
         self.clientSocket.close()
 
-HOST = ""
-PORT = 3389
+
+
+HOST = "127.0.0.1"
+PORT = 5000
+
+
 
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

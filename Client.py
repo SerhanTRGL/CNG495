@@ -5,6 +5,7 @@ import sqlite3
 from threading import *
 import socket
 import matplotlib.pyplot as plt
+import ast
 
 
 class Login(Frame):
@@ -68,12 +69,13 @@ class Login(Frame):
             messagebox.showerror("Error", "Invalid login!")
 
         else:
+
             self.master.destroy()
             if serverMsg[2] == "user":
-                window = CarOwner()
+                window = CarOwner(email, password)
                 window.mainloop()
             elif serverMsg[2] == "shop":
-                window = Repairshop()
+                window = Repairshop(email, password)
                 window.mainloop()
             elif serverMsg[2] == "admin":
                 window = SystemAdmin()
@@ -81,10 +83,17 @@ class Login(Frame):
             else:
                 exit(1)
 
+
+
+
+
+
 class CarOwner(Frame):
 
-    def __init__(self):
+    def __init__(self, userMail, userPassword):
         Frame.__init__(self)
+        self.userMail = userMail
+        self.userPassword = userPassword
         self.pack()
         self.master.title("Car Owner Menu")
 
@@ -126,10 +135,10 @@ class CarOwner(Frame):
         self.frame5 = Frame(self)
         self.frame5.pack(padx=5, pady=5, expand=YES, fill=BOTH)
 
-        self.carStatusLbl = Label(self.frame5, text="Show My Car Status", anchor="w")
+        self.carStatusLbl = Label(self.frame5, text="Show My Cars", anchor="w")
         self.carStatusLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH)
 
-        self.carStatusBtn = Button(self.frame5, text="Show", command=self.buttonPressedShowStatus)
+        self.carStatusBtn = Button(self.frame5, text="Show", command=self.buttonPressedShowCars)
         self.carStatusBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
 
         self.frame6 = Frame(self)
@@ -140,63 +149,91 @@ class CarOwner(Frame):
 
 
     def buttonPressedShowPast(self):
-        messagebox.showinfo("Message", "Your past transactions are: ")
+        clientMsg = "showPastTransactions;" + self.userMail + ";" + self.userPassword
+        msg = ("CLIENT>>> " + clientMsg).encode()
+        clientSocket.send(msg)
+
+        serverMsg = clientSocket.recv(1024).decode()
+        print(serverMsg) #M.maintenanceId, M.name, M.date, M.description, V.model
+        serverMsg = serverMsg.split(";")
+        if serverMsg[0] == "SERVER>>> pasttransactionssuccess":
+        # make the string back again a tuple to get each element
+            parsed_tuple = ast.literal_eval(serverMsg[1])
+            messagebox.showinfo(f"Message", "Your past transactions are: "
+                                        f"Maintanance ID:{parsed_tuple[0]}\n"
+                                        f"Maintanance Name: {parsed_tuple[1]}\n"
+                                        f"Maintanance Date: {parsed_tuple[2]}\n"
+                                        f"Maintanace Description: {parsed_tuple[3]}\n"
+                                        f"Vehicle Model: {parsed_tuple[4]}")
+        else:
+            messagebox.showerror("Error", "You dont have any past transaction record!")
+
     def buttonPressedNewAppointment(self):
         self.master.destroy()
-        appointmentWindow = NewAppointment()
+        appointmentWindow = NewAppointment(self.userMail, self.userPassword)
         appointmentWindow.mainloop()
 
 
 
     def buttonPressedAddCar(self):
         self.master.destroy()
-        addCarWindow = CarOwnerAddCar()
+        addCarWindow = CarOwnerAddCar(self.userMail, self.userPassword)
         addCarWindow.mainloop()
 
-    def buttonPressedShowStatus(self):
-        # self.master.destroy()
-        # showStatusWindow = ShowCarStatus()
-        # showStatusWindow.mainloop()
-        messagebox.showinfo("Message", "Your car status is: ")
+    def buttonPressedShowCars(self):
+        clientMsg = "showMyCars;" + self.userMail + ";" + self.userPassword
+        msg = ("CLIENT>>> " + clientMsg).encode()
+        clientSocket.send(msg)
+
+        serverMsg = clientSocket.recv(1024).decode()
+        print(serverMsg)
+        parts = serverMsg.split(";")
+        if len(parts) > 1 and parts[0] == "SERVER>>> showallcarsuccess":
+            data = ";".join(parts[1:])
+            tuple_strings = data.split(';')
+            tuples_list = [eval(f"({tuple_str})") for tuple_str in tuple_strings]
+            message = "Your cars are as follows:\n"
+            counter = 1
+            for car_info in tuples_list:
+                message += f"\nCar {counter}:\n"
+                message += f"Car ID: {car_info[0]}\nPrice: {car_info[1]}\nType: {car_info[2]}\nModel: {car_info[3]}\nYear: {car_info[4]}\n"
+                counter += 1
+            messagebox.showinfo("Car Information", message)
+        else:
+            messagebox.showerror("Error", "You don't have any car in the system!")
 
     def buttonPressedClose(self):
         self.master.destroy()
 
-class ShowCarStatus(Frame):
-    pass
+
+
+
 
 class NewAppointment(Frame):
-    def __init__(self):
+    def __init__(self, userMail, userPassword):
         Frame.__init__(self)
+        self.userMail = userMail
+        self.userPassword = userPassword
         self.pack()
         self.master.title("Make Appointment")
-
 
         self.frame1 = Frame(self)
         self.frame1.pack(padx=5, pady=5, expand=YES, fill=BOTH)
 
-        self.rapairshopIDLbl = Label(self.frame1, text="Repairshop ID:")
-        self.rapairshopIDLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH, anchor="w")
+        self.carIDLbl = Label(self.frame1, text="Car ID:")
+        self.carIDLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH, anchor="w")
 
-        self.rapairshopIDEntry = Entry(self.frame1, name="repairshop ID")
-        self.rapairshopIDEntry.pack(padx=5, pady=5, expand=YES, fill=BOTH)
-
-
-
-
-
+        self.carIDEntry = Entry(self.frame1, name="carid")
+        self.carIDEntry.pack(padx=5, pady=5, expand=YES, fill=BOTH)
 
         self.frame2 = Frame(self)
         self.frame2.pack(padx=5, pady=5, expand=YES, fill=BOTH)
 
-        self.carIDLbl = Label(self.frame2, text="Car ID:")
-        self.carIDLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH, anchor="w")
+        self.rapairshopIDLbl = Label(self.frame2, text="Repairshop ID:")
+        self.rapairshopIDLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH, anchor="w")
 
-        self.carIDEntry = Entry(self.frame2, name="carid")
-        self.carIDEntry.pack(padx=5, pady=5, expand=YES, fill=BOTH)
-
-
-
+        self.rapairshopIDEntry = Entry(self.frame2, name="repairshop ID")
+        self.rapairshopIDEntry.pack(padx=5, pady=5, expand=YES, fill=BOTH)
 
 
         self.frame3 = Frame(self)
@@ -222,15 +259,32 @@ class NewAppointment(Frame):
         self.closeBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
 
     def buttonPressedMakeAppointment(self):
-        messagebox.showinfo("Message","Appointment is added!")
+        carid = self.carIDEntry.get()
+        repairshopid = self.rapairshopIDEntry.get()
+        appointmentdate = self.appointmentDateEntry.get()
+
+        clientMsg = "addnewappointment;" + self.userMail + ";" + self.userPassword + ";" + carid + ";" + repairshopid + ";" + appointmentdate
+        msg = ("CLIENT>>> " + clientMsg).encode()
+        clientSocket.send(msg)
+
+        serverMsg = clientSocket.recv(1024).decode()
+        print(serverMsg)
+        serverMsg = serverMsg.split(";")
+        if serverMsg[0] == "SERVER>>> addnewappointmentsuccess":
+            messagebox.showinfo("Success", "You have added a new appointment successfully")
+        else:
+            messagebox.showerror("Error", "Your appointment could not be added to the system!")
 
     def buttonPressedClose(self):
         self.master.destroy()
 
+
 class CarOwnerAddCar(Frame):
 
-    def __init__(self):
+    def __init__(self, userMail, userPassword):
         Frame.__init__(self)
+        self.userMail = userMail
+        self.userPassword = userPassword
         self.pack()
         self.master.title("Add Car")
 
@@ -284,15 +338,32 @@ class CarOwnerAddCar(Frame):
         self.closeBtn.pack(padx=5, pady=5)
 
     def buttonPressedAddCar(self):
-        messagebox.showinfo("Message","Car is added!")
+        model = self.carModelEntry.get()
+        miles = self.carMilesEntry.get()
+        type = self.carTypeEntry.get()
+        year = self.carYearEntry.get()
+        clientMsg = "addnewcar;" + self.userMail + ";" + self.userPassword + ";" + model + ";" + miles + ";" + type + ";" + year
+        msg = ("CLIENT>>> " + clientMsg).encode()
+        clientSocket.send(msg)
 
+        serverMsg = clientSocket.recv(1024).decode()
+        print(serverMsg)
+        serverMsg = serverMsg.split(";")
+        if serverMsg[0] == "SERVER>>> addNewCarSuccess":
+            messagebox.showinfo("Success", "You have added a car successfully")
+        else:
+            messagebox.showerror("Error", "Your car could not be added to the system!")
     def buttonPressedClose(self):
         self.master.destroy()
 
+
+
 class Repairshop(Frame):
 
-    def __init__(self):
+    def __init__(self, repairshopMail, repairshopPassword):
         Frame.__init__(self)
+        self.repairshopMail = repairshopMail
+        self.repairshopPassword = repairshopPassword
         self.pack()
         self.master.title("RepairShop Menu")
 
@@ -339,26 +410,71 @@ class Repairshop(Frame):
         self.closeBtn.pack(padx=5, pady=5, expand=YES, fill=BOTH)
 
     def buttonPressedShowCarOwner(self):
-        messagebox.showinfo("Message", "Your Car OwnerS are: ")
+        clientMsg = "showcarowners;" + self.repairshopMail + ";" + self.repairshopPassword
+        msg = ("CLIENT>>> " + clientMsg).encode()
+        clientSocket.send(msg)
+
+        serverMsg = clientSocket.recv(1024).decode()
+        print(serverMsg)
+        parts = serverMsg.split(";")
+        if len(parts) > 1 and parts[0] == "SERVER>>> showownersuccess":
+            data = ";".join(parts[1:])
+            tuple_strings = data.split(';')
+            tuples_list = [eval(f"({tuple_str})") for tuple_str in tuple_strings]
+            message = "Your Car Owners are as follows:\n"
+            counter = 1
+            for appointment_info in tuples_list:
+                message += f"\nOwner {counter}:\n"
+                message += f"ID: {appointment_info[0]}\nName: {appointment_info[1]}\nEmail: {appointment_info[2]}\nPhone Number: {appointment_info[3]}\n"
+                counter += 1
+            messagebox.showinfo("Car Owner Information", message)
+        else:
+            messagebox.showerror("Error", "You don't have any car owner in the system!")
 
     def buttonPressedShowAppointments(self):
-        messagebox.showinfo("Message", "Your Appointments are: ")
+        clientMsg = "showappointments;" + self.repairshopMail + ";" + self.repairshopPassword
+        msg = ("CLIENT>>> " + clientMsg).encode()
+        clientSocket.send(msg)
+
+        serverMsg = clientSocket.recv(1024).decode()
+        print(serverMsg)
+        parts = serverMsg.split(";")  #A.appointmentId, A.date, U.name, V.model
+        if len(parts) > 1 and parts[0] == "SERVER>>> showappointmentsuccess":
+            data = ";".join(parts[1:])
+            tuple_strings = data.split(';')
+            tuples_list = [eval(f"({tuple_str})") for tuple_str in tuple_strings]
+            message = "Your appointments are as follows:\n"
+            counter = 1
+            for appointment_info in tuples_list:
+                message += f"\nAppointment {counter}:\n"
+                message += f"ID: {appointment_info[0]}\nDate: {appointment_info[1]}\nCar Owner Name: {appointment_info[2]}\nVehicle Model: {appointment_info[3]}\n"
+                counter += 1
+            messagebox.showinfo("Appointment Information", message)
+        else:
+            messagebox.showerror("Error", "You don't have any appointment in the system!")
+
+
+    def buttonPressedAddMaintanance(self):
+        self.master.destroy()
+        addMaintananceWindow = AddMaintanance(self.repairshopMail, self.repairshopPassword)
+        addMaintananceWindow.mainloop()
 
     def buttonPressedUpdateMaintanance(self):
         self.master.destroy()
-        updateMaintananceWindow = UpdateMaintanance()
+        updateMaintananceWindow = UpdateMaintanance(self.repairshopMail, self.repairshopPassword)
         updateMaintananceWindow.mainloop()
-    def buttonPressedAddMaintanance(self):
-        self.master.destroy()
-        addMaintananceWindow = AddMaintanance()
-        addMaintananceWindow.mainloop()
+
 
     def buttonPressedClose(self):
         self.master.destroy()
 
+
+
 class AddMaintanance(Frame):
-    def __init__(self):
+    def __init__(self, repairshopMail, repairshopPassword):
         Frame.__init__(self)
+        self.repairshopMail = repairshopMail
+        self.repairshopPassword = repairshopPassword
         self.pack()
         self.master.title("Add Maintanance")
 
@@ -421,25 +537,43 @@ class AddMaintanance(Frame):
 
 
     def buttonPressedAddMaintanance(self):
-        messagebox.showinfo("Message","Maintanace is added!")
+        carId = self.carIDEntry.get()
+        cost = self.carMaintananceCostEntry.get()
+        type = self.maintananceTypeEntry.get()
+        enddate = self.maintananceEndDateEntry.get()
+        description = self.maintananceDescriptionEntry.get()
+        clientMsg = "addnewmaintanance;" + self.repairshopMail + ";" + self.repairshopPassword + ";" + carId + ";" + cost + ";" + type + ";" + enddate + ";" + description
+        msg = ("CLIENT>>> " + clientMsg).encode()
+        clientSocket.send(msg)
+
+        serverMsg = clientSocket.recv(1024).decode()
+        print(serverMsg)
+        serverMsg = serverMsg.split(";")
+        if serverMsg[0] == "SERVER>>> addnewmaintanancesuccess":
+            messagebox.showinfo("Success", "You have added a maintanance successfully")
+        else:
+            messagebox.showerror("Error", "Your maintanance could not be added to the system!")
 
     def buttonPressedClose(self):
         self.master.destroy()
 
+
 class UpdateMaintanance(Frame):
-    def __init__(self):
+    def __init__(self,repairshopMail, repairshopPassword):
         Frame.__init__(self)
+        self.repairshopMail = repairshopMail
+        self.repairshopPassword = repairshopPassword
         self.pack()
         self.master.title("Update Maintanance")
 
         self.frame1 = Frame(self)
         self.frame1.pack(padx=5, pady=5, expand=YES, fill=BOTH)
 
-        self.carIDLbl = Label(self.frame1, text="Car ID:")
-        self.carIDLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH, anchor="w")
+        self.maintananceIDLbl = Label(self.frame1, text="Maintanance ID:")
+        self.maintananceIDLbl.pack(side=LEFT, padx=5, pady=5, expand=YES, fill=BOTH, anchor="w")
 
-        self.carIDEntry = Entry(self.frame1, name="id")
-        self.carIDEntry.pack(padx=5, pady=5, expand=YES, fill=BOTH)
+        self.maintananceIDEntry = Entry(self.frame1, name="id")
+        self.maintananceIDEntry.pack(padx=5, pady=5, expand=YES, fill=BOTH)
 
         self.frame2 = Frame(self)
         self.frame2.pack(padx=5, pady=5)
@@ -491,10 +625,26 @@ class UpdateMaintanance(Frame):
 
 
     def buttonPressedUpdateMaintanance(self):
-        messagebox.showinfo("Message","Maintanace date is updated!")
+        maintananceId = self.maintananceIDEntry.get()
+        cost = self.carMaintananceCostEntry.get()
+        type = self.maintananceTypeEntry.get()
+        newenddate = self.updateEndDateEntry.get()
+        description = self.maintananceDescriptionEntry.get()
+        clientMsg = "updatemaintanance;" + self.repairshopMail + ";" + self.repairshopPassword + ";" + maintananceId + ";" + cost + ";" + type + ";" + newenddate + ";" + description
+        msg = ("CLIENT>>> " + clientMsg).encode()
+        clientSocket.send(msg)
+
+        serverMsg = clientSocket.recv(1024).decode()
+        print(serverMsg)
+        serverMsg = serverMsg.split(";")
+        if serverMsg[0] == "SERVER>>> updatemaintanancesuccess":
+            messagebox.showinfo("Success", "You have updated a maintanance enddate successfully")
+        else:
+            messagebox.showerror("Error", "Your maintanance enddate could not be updated!")
 
     def buttonPressedClose(self):
         self.master.destroy()
+
 
 class SystemAdmin(Frame):
 
@@ -568,6 +718,7 @@ class SystemAdmin(Frame):
 
     def buttonPressedClose(self):
         self.master.destroy()
+
 
 class AddRepairshop(Frame):
     def __init__(self):
@@ -655,9 +806,12 @@ class AddRepairshop(Frame):
     def buttonPressedClose(self):
         self.master.destroy()
 
+
+
+
 if __name__ == "__main__":
-    HOST = "34.155.248.200"
-    PORT = 3389
+    HOST = "127.0.0.1"
+    PORT = 5000
 
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
