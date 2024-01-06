@@ -6,6 +6,8 @@ Car Repair Shop Management System with Cloud Server
 -     admin@example.com
 -     adminpassword
 -     admin (choose it on the "Roles" radio button!)
+-   Or, with the *new* update, you may register to the system with your own details!
+-   You can make appointments and you will receive an *actual* confirmation email to the email address that you used for registration.
 
 --Server.py
 - Which is currently and will be running 24/7 on Google Cloud Platform.
