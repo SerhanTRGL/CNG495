@@ -810,8 +810,8 @@ class AddRepairshop(Frame):
 
 
 if __name__ == "__main__":
-    HOST = "127.0.0.1"
-    PORT = 5000
+    HOST = "34.155.248.200"
+    PORT = 3389
 
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
