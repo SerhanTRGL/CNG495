@@ -384,7 +384,8 @@ class NewAppointment(Frame):
         print(serverMsg)
         serverMsg = serverMsg.split(";")
         if serverMsg[0] == "SERVER>>> addnewappointmentsuccess":
-            messagebox.showinfo("Success", "You have added a new appointment successfully")
+            messagebox.showinfo("Success", f"You have added a new appointment successfully\n"
+                                           f"An email with the details has been sent to {self.userMail}")
         else:
             messagebox.showerror("Error", "Your appointment could not be added to the system!")
 
