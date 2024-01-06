@@ -8,6 +8,119 @@ import matplotlib.pyplot as plt
 import ast
 
 
+class Home(Frame):
+    def __init__(self):
+        Frame.__init__(self)
+        self.pack()
+        self.master.title("Home")
+
+        self.frame1 = Frame(self)
+        self.frame1.pack(padx=15, pady=15)
+
+        self.nameLbl = Label(self.frame1, text="WELCOME TO OUR SYSTEM")
+        self.nameLbl.pack(side=TOP, padx=5, pady=5)
+
+
+        self.frame2 = Frame(self)
+        self.frame2.pack(padx=5, pady=5)
+
+        self.loginBtn = Button(self.frame2, text="Register", command=self.buttonPressedRegister)
+        self.loginBtn.pack(padx=5, pady=5)
+
+        self.frame3 = Frame(self)
+        self.frame3.pack(padx=5, pady=5)
+
+        self.loginBtn = Button(self.frame3, text="Login", command=self.buttonPressedLogin)
+        self.loginBtn.pack(padx=5, pady=5)
+
+
+    def  buttonPressedRegister(self):
+        self.master.destroy()
+        window = Registration()
+        window.mainloop()
+
+    def  buttonPressedLogin(self):
+        self.master.destroy()
+        window = Login()
+        window.mainloop()
+
+
+
+class Registration(Frame):
+    def __init__(self):
+        Frame.__init__(self)
+        self.pack()
+        self.master.title("Login")
+
+        self.frame1 = Frame(self)
+        self.frame1.pack(padx=5, pady=5)
+
+        self.nameLbl = Label(self.frame1, text="Name: ")
+        self.nameLbl.pack(side=LEFT, padx=5, pady=5)
+
+        self.nameEntry = Entry(self.frame1, name="name")
+        self.nameEntry.pack(padx=5, pady=5)
+
+        self.frame2 = Frame(self)
+        self.frame2.pack(padx=5, pady=5)
+
+        self.emailLbl = Label(self.frame2, text="E-mail:")
+        self.emailLbl.pack(side=LEFT, padx=5, pady=5)
+
+        self.emailEntry = Entry(self.frame2, name="email")
+        self.emailEntry.pack(padx=5, pady=5)
+
+        self.frame3 = Frame(self)
+        self.frame3.pack(padx=5, pady=5)
+
+        self.passwordLbl = Label(self.frame3, text="Password")
+        self.passwordLbl.pack(side=LEFT, padx=5, pady=5)
+
+        self.passwordEntry = Entry(self.frame3, name="password", show="*")
+        self.passwordEntry.pack(padx=5, pady=5)
+
+        self.frame4 = Frame(self)
+        self.frame4.pack(padx=5, pady=5)
+
+        self.phonenoLbl = Label(self.frame4, text="phoneNumber:")
+        self.phonenoLbl.pack(side=LEFT, padx=5, pady=5)
+
+        self.phonenoEntry = Entry(self.frame4, name="phoneno")
+        self.phonenoEntry.pack(padx=5, pady=5)
+
+        self.frame5 = Frame(self)
+        self.frame5.pack(padx=5, pady=5)
+
+        self.loginBtn = Button(self.frame5, text="Register", command=self.buttonPressed)
+        self.loginBtn.pack(padx=5, pady=5)
+
+    def buttonPressed(self):
+        name = self.nameEntry.get()
+        email = self.emailEntry.get()
+        password = self.passwordEntry.get()
+        phoneno = self.phonenoEntry.get()
+        clientMsg = "register;" + name + ";" + email + ";" + password+ ";" + phoneno
+        msg = ("CLIENT>>> " + clientMsg).encode()
+        clientSocket.send(msg)
+
+        serverMsg = clientSocket.recv(1024).decode()
+        print(serverMsg)
+        serverMsg = serverMsg.split(";")  # after getting server message, I splitted it
+        if serverMsg[0] != "SERVER>>> registersuccess":
+            messagebox.showerror("Error", "Invalid register!")
+
+        else:
+            self.master.destroy()
+            window = Login()
+            window.mainloop()
+
+
+
+
+
+
+
+
 class Login(Frame):
 
     def __init__(self):
@@ -812,7 +925,6 @@ class AddRepairshop(Frame):
 if __name__ == "__main__":
     HOST = "34.155.248.200"
     PORT = 3389
-
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     try:
@@ -823,7 +935,7 @@ if __name__ == "__main__":
     serverMsg = clientSocket.recv(1024).decode()
     if serverMsg == "SERVER>>> connectionsuccess":
         print(serverMsg)
-        window = Login()
+        window = Home()
         window.mainloop()
 
         # serverMsg = clientSocket.recv(1024).decode()

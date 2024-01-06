@@ -56,7 +56,25 @@ class ClientThread(Thread):
         clientMsg = clientMsg.split(";")
 
         while clientMsg[0] != "CLIENT>>> TERMINATE":
-            if clientMsg[0] == "CLIENT>>> login":
+            if clientMsg[0] == "CLIENT>>> register":
+                conn = sqlite3.connect("car.db")
+                c = conn.cursor()
+                print(originalMessage)
+
+                c.execute("SELECT * FROM USER WHERE email=?", (clientMsg[2], ))
+                row = c.fetchone()
+                #this means the user is already exist in our databse
+                if row != None:
+                    msg = "SERVER>>> registerfailure".encode()
+                else:
+                    c.execute("INSERT INTO USER(name,email,password,phoneNumber) VALUES(?,?,?,?)", (clientMsg[1], clientMsg[2], clientMsg[3], clientMsg[4]))
+                    conn.commit()
+                    msg = "SERVER>>> registersuccess".encode()
+
+                self.clientSocket.send(msg)
+                conn.close()
+
+            elif clientMsg[0] == "CLIENT>>> login":
                 conn = sqlite3.connect("car.db")
                 c = conn.cursor()
                 print(originalMessage)
@@ -352,8 +370,6 @@ class ClientThread(Thread):
 
 HOST = ""
 PORT = 3389
-
-
 
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
