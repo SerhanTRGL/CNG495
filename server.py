@@ -7,6 +7,8 @@ import sqlite3
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.header import Header
+
 
 senderEmail = "carmanagementSystemMETUNCC@gmail.com"
 password = "tsan uyja hvbg fydf"  # App specific password
@@ -14,7 +16,7 @@ password = "tsan uyja hvbg fydf"  # App specific password
 def send_email(subject, message, from_email, to_email, password, smtp_server='smtp.gmail.com', smtp_port=587):
     # Create message container
     msg = MIMEMultipart()
-    msg['From'] = from_email
+    msg['From'] = str(Header(f'Car Repair Management System <{from_email}>'))
     msg['To'] = to_email
     msg['Subject'] = subject
 
